@@ -33,14 +33,12 @@ public class ListaEnlazada<T> {
 
     /** @return true si la lista no tiene elementos. */
     public boolean estaVacia() {
-        // TODO Etapa 1: escriba su código aquí
-        throw new UnsupportedOperationException("TODO: estaVacia");
+        return cantidad == 0;
     }
 
     /** @return número de elementos de la lista. */
     public int tamanio() {
-        // TODO Etapa 1: escriba su código aquí
-        throw new UnsupportedOperationException("TODO: tamanio");
+        return cantidad;
     }
 
     // =====================================================================
