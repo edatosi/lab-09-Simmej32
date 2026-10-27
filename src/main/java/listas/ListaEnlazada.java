@@ -47,16 +47,26 @@ public class ListaEnlazada<T> {
 
     /** Inserta el dato como nuevo primer elemento. */
     public void agregarAlInicio(T dato) {
-        // TODO Etapa 2: cree un Nodo, enlácelo a la cabeza actual
-        //               y actualice la cabeza y la cantidad.
-        throw new UnsupportedOperationException("TODO: agregarAlInicio");
+        Nodo<T> nuevoNodo = new Nodo<>(dato);
+        nuevoNodo.setSiguiente(cabeza); 
+        cabeza = nuevoNodo;
+        cantidad++;
     }
 
     /** Inserta el dato como nuevo último elemento. */
     public void agregarAlFinal(T dato) {
-        // TODO Etapa 2: si la lista está vacía es igual que agregarAlInicio;
-        //               si no, recorra hasta el último nodo y enlace el nuevo.
-        throw new UnsupportedOperationException("TODO: agregarAlFinal");
+        if (estaVacia()) {
+            agregarAlInicio(dato);
+            return;
+        }
+        Nodo<T> nuevoNodo = new Nodo<>(dato);
+        Nodo<T> actual = cabeza;
+
+        while (actual.getSiguiente() != null) {
+            actual = actual.getSiguiente();
+        }
+        actual.setSiguiente(nuevoNodo);
+        cantidad++;
     }
 
     // =====================================================================
@@ -65,14 +75,20 @@ public class ListaEnlazada<T> {
 
     /** @throws NoSuchElementException si la lista está vacía */
     public T obtenerPrimero() {
-        // TODO Etapa 3: escriba su código aquí
-        throw new UnsupportedOperationException("TODO: obtenerPrimero");
+        if (estaVacia()) throw new NoSuchElementException("Lista vacía");
+        return cabeza.getDato();
     }
 
     /** @throws NoSuchElementException si la lista está vacía */
     public T obtenerUltimo() {
-        // TODO Etapa 3: escriba su código aquí
-        throw new UnsupportedOperationException("TODO: obtenerUltimo");
+        if (estaVacia()) throw new NoSuchElementException("Lista vacía");
+        
+        Nodo<T> actual = cabeza;
+        // Recorre hasta detenerse en el último vagón
+        while (actual.getSiguiente() != null) {
+            actual = actual.getSiguiente();
+        }
+        return actual.getDato();
     }
 
     /**
@@ -80,8 +96,14 @@ public class ListaEnlazada<T> {
      * @throws IndexOutOfBoundsException si indice < 0 o indice >= tamanio()
      */
     public T obtener(int indice) {
-        // TODO Etapa 3: valide el índice y recorra la lista 'indice' veces.
-        throw new UnsupportedOperationException("TODO: obtener");
+        if (indice < 0 || indice >= cantidad) throw new IndexOutOfBoundsException("Índice no válido");
+        
+        Nodo<T> actual = cabeza;
+        // Da saltos exactos hasta la posición solicitada
+        for (int i = 0; i < indice; i++) {
+            actual = actual.getSiguiente();
+        }
+        return actual.getDato();
     }
 
     // =====================================================================
@@ -90,15 +112,24 @@ public class ListaEnlazada<T> {
 
     /** @return true si algún elemento es igual (equals) al dato. Admite null. */
     public boolean contiene(T dato) {
-        // TODO Etapa 4: use indiceDe o recorra la lista.
-        //               Cuidado: para comparar use Objects.equals(a, b).
-        throw new UnsupportedOperationException("TODO: contiene");
+        return indiceDe(dato) != -1;
     }
 
     /** @return posición de la primera aparición del dato, o -1 si no está. */
     public int indiceDe(T dato) {
-        // TODO Etapa 4: escriba su código aquí
-        throw new UnsupportedOperationException("TODO: indiceDe");
+        Nodo<T> actual = cabeza;
+        int indice = 0;
+
+        // Recorremos todos los vagones hasta que se acabe el tren (actual sea null)
+        while (actual != null) {
+            // Objects.equals compara de forma segura, incluso si los datos son null
+            if (java.util.Objects.equals(actual.getDato(), dato)) {
+                return indice;
+            }
+            actual = actual.getSiguiente();
+            indice++;
+        }
+        return -1;
     }
 
     // =====================================================================
@@ -112,9 +143,22 @@ public class ListaEnlazada<T> {
      * @throws IndexOutOfBoundsException si indice < 0 o indice > tamanio()
      */
     public void insertar(int indice, T dato) {
-        // TODO Etapa 5: casos: indice 0 (inicio), o detenerse en el nodo
-        //               ANTERIOR a la posición y enlazar allí el nuevo nodo.
-        throw new UnsupportedOperationException("TODO: insertar");
+        if (indice < 0 || indice > tamanio()){
+            throw new IndexOutOfBoundsException("Índice no válido");
+        }
+        if (indice == 0) {
+            agregarAlInicio(dato);
+            return;
+        }
+        Nodo<T> anterior = cabeza;
+        for (int i = 0; i < indice - 1; i++) {
+            anterior = anterior.getSiguiente();
+        }
+        // Conectamos el nuevo vagón sin romper el tren
+        Nodo<T> nuevoNodo = new Nodo<>(dato);
+        nuevoNodo.setSiguiente(anterior.getSiguiente());
+        anterior.setSiguiente(nuevoNodo);
+        cantidad++;
     }
 
     /**
@@ -124,8 +168,18 @@ public class ListaEnlazada<T> {
      * @throws IndexOutOfBoundsException si indice < 0 o indice >= tamanio()
      */
     public T reemplazar(int indice, T dato) {
-        // TODO Etapa 5: escriba su código aquí
-        throw new UnsupportedOperationException("TODO: reemplazar");
+        if (indice < 0 || indice >= cantidad) throw new IndexOutOfBoundsException("Índice no válido");
+
+        // Avanzamos hasta el vagón exacto
+        Nodo<T> actual = cabeza;
+        for (int i = 0; i < indice; i++) {
+            actual = actual.getSiguiente();
+        }
+
+        // Guardamos la carga vieja, metemos la nueva y retornamos la vieja
+        T datoAntiguo = actual.getDato();
+        actual.setDato(dato);
+        return datoAntiguo;
     }
 
     // =====================================================================
@@ -137,8 +191,13 @@ public class ListaEnlazada<T> {
      * @throws NoSuchElementException si la lista está vacía
      */
     public T eliminarPrimero() {
-        // TODO Etapa 6: mueva la cabeza al siguiente nodo.
-        throw new UnsupportedOperationException("TODO: eliminarPrimero");
+        if (estaVacia()) throw new NoSuchElementException("Lista vacía");
+        
+        T dato = cabeza.getDato();
+        // La cabeza salta al segundo vagón, desconectando el primero
+        cabeza = cabeza.getSiguiente(); 
+        cantidad--;
+        return dato;
     }
 
     /**
@@ -146,9 +205,20 @@ public class ListaEnlazada<T> {
      * @throws NoSuchElementException si la lista está vacía
      */
     public T eliminarUltimo() {
-        // TODO Etapa 6: hay que detenerse en el PENULTIMO nodo.
-        //               Atención al caso de un solo elemento.
-        throw new UnsupportedOperationException("TODO: eliminarUltimo");
+        if (estaVacia()) throw new NoSuchElementException("Lista vacía");
+        if (cantidad == 1) return eliminarPrimero(); // Caso de un solo vagón
+
+        Nodo<T> penultimo = cabeza;
+        // Avanzamos hasta detenernos exactamente en el penúltimo vagón
+        while (penultimo.getSiguiente().getSiguiente() != null) {
+            penultimo = penultimo.getSiguiente();
+        }
+
+        T dato = penultimo.getSiguiente().getDato();
+        // Desconectamos el último vagón haciendo que el penúltimo apunte a null
+        penultimo.setSiguiente(null); 
+        cantidad--;
+        return dato;
     }
 
     /**
@@ -156,8 +226,20 @@ public class ListaEnlazada<T> {
      * @throws IndexOutOfBoundsException si indice < 0 o indice >= tamanio()
      */
     public T eliminar(int indice) {
-        // TODO Etapa 6: escriba su código aquí
-        throw new UnsupportedOperationException("TODO: eliminar(int)");
+        if (indice < 0 || indice >= cantidad) throw new IndexOutOfBoundsException("Índice no válido");
+        if (indice == 0) return eliminarPrimero();
+
+        Nodo<T> anterior = cabeza;
+        // Nos detenemos en el vagón anterior para poder puentear el enlace
+        for (int i = 0; i < indice - 1; i++) {
+            anterior = anterior.getSiguiente();
+        }
+
+        T dato = anterior.getSiguiente().getDato();
+        // Saltamos el vagón que queremos borrar, conectando directo con el que le sigue
+        anterior.setSiguiente(anterior.getSiguiente().getSiguiente());
+        cantidad--;
+        return dato;
     }
 
     /**
@@ -165,14 +247,20 @@ public class ListaEnlazada<T> {
      * @return true si se eliminó algo, false si el dato no estaba
      */
     public boolean eliminarValor(T dato) {
-        // TODO Etapa 6: puede apoyarse en indiceDe y eliminar(int).
-        throw new UnsupportedOperationException("TODO: eliminarValor");
+        // Reutilizamos la lógica que ya hicimos en las etapas anteriores
+        int indice = indiceDe(dato);
+        if (indice != -1) {
+            eliminar(indice);
+            return true;
+        }
+        return false;
     }
 
     /** Deja la lista vacía. */
     public void vaciar() {
-        // TODO Etapa 6: escriba su código aquí
-        throw new UnsupportedOperationException("TODO: vaciar");
+        // Al quitar la cabeza, Java (Garbage Collector) destruye el tren automáticamente
+        cabeza = null;
+        cantidad = 0;
     }
 
     // =====================================================================
@@ -185,8 +273,20 @@ public class ListaEnlazada<T> {
      */
     @Override
     public String toString() {
-        // TODO Etapa 7: recorra la lista con un StringBuilder.
-        throw new UnsupportedOperationException("TODO: toString");
+        // Usamos StringBuilder para concatenar texto de forma eficiente
+        StringBuilder sb = new StringBuilder("[");
+        Nodo<T> actual = cabeza;
+        
+        // Recorremos la lista añadiendo comas solo si hay un siguiente vagón
+        while (actual != null) {
+            sb.append(actual.getDato());
+            if (actual.getSiguiente() != null) {
+                sb.append(", ");
+            }
+            actual = actual.getSiguiente();
+        }
+        
+        return sb.append("]").toString();
     }
 
     // =====================================================================
@@ -197,9 +297,27 @@ public class ListaEnlazada<T> {
      * Invierte la lista EN SITIO: no cree nodos nuevos, solo cambie
      * las referencias 'siguiente' de los nodos existentes.
      */
+    // =====================================================================
+    // ETAPA 8. Retos
+    // =====================================================================
+
+    /**
+     * Invierte la lista EN SITIO: no cree nodos nuevos, solo cambie
+     * las referencias 'siguiente' de los nodos existentes.
+     */
     public void invertir() {
-        // TODO Etapa 8: use tres referencias: anterior, actual, siguiente.
-        throw new UnsupportedOperationException("TODO: invertir");
+        // Usamos tres punteros para invertir la dirección de los enlaces uno por uno
+        Nodo<T> anterior = null;
+        Nodo<T> actual = cabeza;
+        Nodo<T> siguiente = null;
+
+        while (actual != null) {
+            siguiente = actual.getSiguiente();
+            actual.setSiguiente(anterior);
+            anterior = actual;
+            actual = siguiente;
+        }
+        cabeza = anterior;
     }
 
     /**
@@ -210,8 +328,17 @@ public class ListaEnlazada<T> {
      * @throws NoSuchElementException si la lista está vacía
      */
     public T obtenerMedio() {
-        // TODO Etapa 8: escriba su código aquí
-        throw new UnsupportedOperationException("TODO: obtenerMedio");
+        if (estaVacia()) throw new NoSuchElementException("Lista vacía");
+
+        // El puntero rápido avanza el doble; cuando llegue al final, el lento estará a la mitad
+        Nodo<T> lento = cabeza;
+        Nodo<T> rapido = cabeza;
+
+        while (rapido != null && rapido.getSiguiente() != null) {
+            lento = lento.getSiguiente();
+            rapido = rapido.getSiguiente().getSiguiente();
+        }
+        return lento.getDato();
     }
 
     /**
@@ -219,7 +346,20 @@ public class ListaEnlazada<T> {
      * de cada uno, conservando el orden. Ej.: [1,2,1,3,2] -> [1,2,3]
      */
     public void eliminarDuplicados() {
-        // TODO Etapa 8: escriba su código aquí
-        throw new UnsupportedOperationException("TODO: eliminarDuplicados");
+        Nodo<T> actual = cabeza;
+
+        // Comparamos cada nodo con el resto del tren en adelante para borrar las copias
+        while (actual != null) {
+            Nodo<T> corredor = actual;
+            while (corredor.getSiguiente() != null) {
+                if (java.util.Objects.equals(actual.getDato(), corredor.getSiguiente().getDato())) {
+                    corredor.setSiguiente(corredor.getSiguiente().getSiguiente());
+                    cantidad--;
+                } else {
+                    corredor = corredor.getSiguiente();
+                }
+            }
+            actual = actual.getSiguiente();
+        }
     }
 }
